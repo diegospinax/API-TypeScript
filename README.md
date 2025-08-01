@@ -1,4 +1,4 @@
-### **Explicación de cada sección**
+### **Explicación de cada sección - Día 1**
  
 1. **Primer Proyecto en Node.js con Express**:
    - Primer Proyecto paso a paso para la generación de los archivos e instalación de Framework Express
@@ -57,8 +57,7 @@
     "dev": "nodemon src/index.ts"
   }
 
-
-### **Explicación de cada sección**
+### **Explicación de cada sección - Día 2**
  
 1. **Empezar a Orientar a Objetos la App**:
    - Las rutas se orientan a objetos
@@ -107,8 +106,7 @@ Instalación
  
 - npm i joi
 
-### **Explicación de cada sección** 
-<!-- Dia 3 -->
+### **Explicación de cada sección - Día 3**
  
 1. Agregar al .env las nuevas variables de entorno
 - DB_HOST=localhost
