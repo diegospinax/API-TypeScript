@@ -38,7 +38,7 @@ export class UserApplication {
   }
 
   async findAll(): Promise<User[]> {
-    return this.port.findAll();
+    return await this.port.findAll();
   }
 
   async findById(id: number): Promise<User | null> {
@@ -46,7 +46,7 @@ export class UserApplication {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.port.findByEmail(email);
+    return await this.port.findByEmail(email);
   }
 
   async existsByEmail(email: string): Promise<boolean> {

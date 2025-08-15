@@ -1,8 +1,6 @@
 import express from "express";
 import http from "http";
-import dotenv from "dotenv";
-
-dotenv.config();
+import environments from "../config/environment-vars";
 
 export class ServerBootstrap {
   private app: express.Application;
@@ -14,7 +12,7 @@ export class ServerBootstrap {
   public init = (): Promise<boolean> => {
     return new Promise((resolve, reject) => {
       const server = http.createServer(this.app);
-      const PORT = process.env.PORT || 4000;
+      const PORT = environments.PORT || 4000;
 
       server
         .listen(PORT)

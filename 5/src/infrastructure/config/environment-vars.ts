@@ -1,7 +1,7 @@
 import * as joi from "joi";
 import "dotenv/config";
 
-export type Environments = {
+type Environments = {
   PORT: number;
   DB_HOST: string;
   DB_PORT: number;

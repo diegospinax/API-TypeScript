@@ -67,7 +67,7 @@ export class UserAdapter implements UserPort {
   async findAll(): Promise<User[]> {
     try {
       const users = await this.userRepository.find();
-      return users.map(this.toDomain);
+      return users.map((user) => this.toDomain(user));
     } catch (error) {
       console.error("Error while finding all users", error);
       throw new Error("Error finding all users.");
