@@ -1,7 +1,15 @@
+import { Request, Response } from "express";
 import { UserApplication } from "../../application/UserApplication";
 import { User } from "../../domain/User";
-import { Request, Response } from "express";
-import { nameRegexList, emailRegexList, passwordRegexList } from "./UserRegex";
+import { CreateUserDto } from "../dto/user/create-user.dto";
+import { handleControllerError, handleError } from "../helpers/error/handle-error";
+import {
+  emailRegexList
+} from "../helpers/regex/user.regex";
+import {
+  userCreationValidation,
+  userUpdateValidation,
+} from "../helpers/validations/user.validations";
 
 export class UserController {
   private app: UserApplication;
@@ -11,23 +19,14 @@ export class UserController {
   }
 
   async createUser(req: Request, res: Response): Promise<Response> {
-    const { name, email, password } = req.body;
+    const { name, email, password }: CreateUserDto = req.body;
     try {
-      if (!nameRegexList.createRegex.test(name.trim())) {
-        return res.status(400).json({
-          message: "Nombre inválido.",
-        });
-      }
-      if (!emailRegexList.createRegex.test(email.trim())) {
-        return res.status(400).json({
-          message: "Email inválido.",
-        });
-      }
-      if (!passwordRegexList.createRegex.test(password.trim())) {
-        return res.status(400).json({
-          message: "Contraseña debe tener letras y por lo menos 1 número.",
-        });
-      }
+      const validationError = userCreationValidation(
+        { name, email, password },
+        res
+      );
+
+      if (validationError) return validationError;
 
       const user: Omit<User, "id"> = { name, email, password, status: true };
       const userId = await this.app.createUser(user);
@@ -37,51 +36,40 @@ export class UserController {
         userId,
       });
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Ha ocurrido un error", error: error });
+      return handleControllerError(res, error as Error);
     }
   }
 
   async searchUserById(req: Request, res: Response): Promise<Response> {
     try {
       const userId = parseInt(req.params.id);
-      
-      if (isNaN(userId))
-        return res.status(400).json({ message: "Error en parámetro" });
+
+      if (isNaN(userId)) return handleError("Error en parámetro", res);
 
       const user = await this.app.findById(userId);
-      if (!user) {
-        return res.status(404).json({
-          message: "Usuario no encontrado",
-        });
-      }
+
+      if (!user) return handleError("Usuario no encontrado.", res);
 
       return res.status(200).json(user);
-
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Ha ocurrido un error", error: error });
+      return handleControllerError(res, error as Error);
     }
   }
 
   async searchByEmail(req: Request, res: Response): Promise<Response> {
-    try { 
+    try {
       const { email } = req.params;
 
       if (!emailRegexList.createRegex.test(email))
-        return res.status(400).json({ message: "Email inválido" });
+        return handleError("Email inválido", res);
 
       const user = await this.app.findByEmail(email);
 
-      if (!user) return res.status(404).json({message: "Usuario no encontrado."})
+      if (!user) return handleError("Usuario no encontrado.", res);
 
       return res.status(200).json(user);
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Ha ocurrido un error", error: error });
+      return handleControllerError(res, error as Error);
     }
   }
 
@@ -90,9 +78,7 @@ export class UserController {
       const users = await this.app.findAll();
       return res.status(200).json(users);
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Ha ocurrido un error", error: error });
+      return handleControllerError(res, error as Error);
     }
   }
 
@@ -101,22 +87,18 @@ export class UserController {
       const userId = parseInt(req.params.id);
 
       if (isNaN(userId))
-        return res.status(400).json({ message: "Parámetro inválido" });
+        return handleError("Parámetro inválido", res);
 
       const userExists: boolean = await this.app.existsById(userId);
 
       if (!userExists)
-        return res.status(400).json({ message: "Usuario no encontrado." });
+        return handleError("Usuario no encontrado.", res)
 
-      const yesornot = await this.app.deleteUser(userId);
-      console.log(yesornot);
-      
+      await this.app.deleteUser(userId);
 
       return res.status(204).send();
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Ha ocurrido un error", error: error });
+      return handleControllerError(res, error as Error);
     }
   }
 
@@ -124,43 +106,28 @@ export class UserController {
     try {
       const userId: number = parseInt(req.params.id);
 
-      if (isNaN(userId))
-        return res.status(400).json({ message: "Parámetro inválido" });
-      
-      const { name, email, password } = req.body;
+      if (isNaN(userId)) return handleError("Parámetro inválido", res);
 
-      if (!nameRegexList.updateRegex.test(name.trim())) {
-        return res.status(400).json({
-          message: "Nombre inválido.",
-        });
-      }
-      if (!emailRegexList.updateRegex.test(email.trim())) {
-        return res.status(400).json({
-          message: "Email inválido.",
-        });
-      }
-      if (!passwordRegexList.updateRegex.test(password.trim())) {
-        return res.status(400).json({
-          message: "Contraseña inválida.",
-        });
-      }
+      const { name, email, password }: CreateUserDto = req.body;
+
+      const validationError = userUpdateValidation(
+        { name, email, password },
+        res
+      );
 
       const userUpdated: User = {
         id: userId,
         name,
         email,
         password,
-        status: true
-      }
+        status: true,
+      };
 
       this.app.updateUser(userId, userUpdated);
 
       return res.status(200).json(userUpdated);
-
     } catch (error) {
-      return res
-        .status(400)
-        .json({ message: "Ha ocurrido un error", error: error });
+      return handleControllerError(res, error as Error);
     }
   }
 }

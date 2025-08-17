@@ -1,9 +1,8 @@
 import { Repository } from "typeorm";
 import { User } from "../../domain/User";
 import { UserPort } from "../../domain/UserPort";
-import { UserEntity } from "../entities/UserEntity";
 import { AppDataSource } from "../config/db-connection";
-import e from "express";
+import { UserEntity } from "../entities/UserEntity";
 
 export class UserAdapter implements UserPort {
   private userRepository: Repository<UserEntity>;
