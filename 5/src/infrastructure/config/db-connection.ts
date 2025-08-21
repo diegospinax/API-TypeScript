@@ -4,7 +4,7 @@ import environments from "./environment-vars";
 '../config/environment-vars'
 
 export const AppDataSource = new DataSource({
-    type: "mysql",
+    type: "postgres",
     host: environments.DB_HOST,
     port: Number(environments.DB_PORT),
     username: environments.DB_USER,
@@ -12,7 +12,8 @@ export const AppDataSource = new DataSource({
     database: environments.DB_NAME,
     synchronize: true,
     logging: true,
-    entities: [UserEntity]
+    entities: [UserEntity],
+    schema: environments.DB_SCHEMA
 })
 
 export const connection = async () => {

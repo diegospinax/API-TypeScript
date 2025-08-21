@@ -8,6 +8,7 @@ type Environments = {
   DB_USER: string;
   DB_NAME: string;
   DB_PASSWORD: string;
+  DB_SCHEMA: string;
 };
 
 type ValidationEnvironments = {
@@ -26,6 +27,7 @@ const validateEnvironments = (
       DB_USER: joi.string().required(),
       DB_NAME: joi.string().required(),
       DB_PASSWORD: joi.string().allow("").optional(),
+      DB_SCHEMA: joi.string().required(),
     })
     .unknown(true);
 
@@ -47,6 +49,7 @@ const loadEnvironments = (): Environments => {
     DB_USER: value.DB_USER,
     DB_NAME: value.DB_NAME,
     DB_PASSWORD: value.DB_PASSWORD,
+    DB_SCHEMA: value.DB_SCHEMA
   };
 };
 

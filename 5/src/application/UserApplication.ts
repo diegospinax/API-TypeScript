@@ -17,13 +17,13 @@ export class UserApplication {
 
   async updateUser(id: number, user: Partial<User>): Promise<boolean> {
     const existingUser = await this.existsById(id);
-    if (!existingUser) throw new Error("User already exists!");
+    if (!existingUser) throw new Error("User does not exists!");
 
     if (user.email) {
       const userWithEmail = await this.port.findByEmail(user.email);
 
       if (userWithEmail && userWithEmail.id !== id)
-        throw new Error("User already exists!");
+        throw new Error("Email already exists!");
     }
 
     return await this.port.updateUser(id, user);

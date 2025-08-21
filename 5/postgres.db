@@ -1,0 +1,9 @@
+create database typescript_db;
+
+create table "user" (
+  id_user SERIAL NOT NULL PRIMARY KEY,
+  name_user VARCHAR(255) NOT NULL,
+  email_user VARCHAR(255) UNIQUE NOT NULL,
+  password_user VARCHAR(255) NOT NULL,
+  status_user BOOLEAN NOT NULL
+);
