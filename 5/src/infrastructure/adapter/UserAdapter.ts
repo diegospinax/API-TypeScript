@@ -3,6 +3,7 @@ import { User } from "../../domain/User";
 import { UserPort } from "../../domain/UserPort";
 import { AppDataSource } from "../config/db-connection";
 import { UserEntity } from "../entities/UserEntity";
+import bcrypt from "bcryptjs";
 
 export class UserAdapter implements UserPort {
   private userRepository: Repository<UserEntity>;
@@ -13,7 +14,7 @@ export class UserAdapter implements UserPort {
 
   async createUser(user: Omit<User, "id">): Promise<number> {
     try {
-      const newUser = this.toEntity(user);
+      const newUser = await this.toEntity(user);
       const savedUser = await this.userRepository.save(newUser);
       return savedUser.id_user!;
     } catch (error) {
@@ -32,7 +33,7 @@ export class UserAdapter implements UserPort {
             id_user: existingUser.id_user,
             name_user: user.name ?? existingUser.name_user,
             email_user: user.email ?? existingUser.email_user,
-            password_user: user.password ?? existingUser.password_user,
+            password_user: user.password ? await this.encryptPassword(user.password) : existingUser.password_user,
             status_user: true
         }
 
@@ -103,12 +104,16 @@ export class UserAdapter implements UserPort {
     };
   }
 
-  private toEntity(user: Omit<User, "id">): UserEntity {
+  private async toEntity(user: Omit<User, "id">): Promise<UserEntity> {
     return {
       name_user: user.name,
       email_user: user.email,
-      password_user: user.password,
+      password_user: await this.encryptPassword(user.password),
       status_user: user.status,
     };
+  }
+
+  private async encryptPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, 10);
   }
 }

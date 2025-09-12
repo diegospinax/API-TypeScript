@@ -1,10 +1,12 @@
 import express, { Request, Response } from "express";
 import userRoutes from "../routes/UserRoutes";
+import cors from "cors";
 
 class App {
   private app: express.Application;
 
   private middleware = () => {
+    this.app.use(cors());
     this.app.use(express.json());
   }
 

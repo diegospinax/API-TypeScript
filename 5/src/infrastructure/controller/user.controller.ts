@@ -4,7 +4,8 @@ import { User } from "../../domain/User";
 import { CreateUserDto } from "../dto/user/create-user.dto";
 import { handleControllerError, handleError } from "../helpers/error/handle-error";
 import {
-  emailRegexList
+  emailRegexList,
+  passwordRegexList
 } from "../helpers/regex/user.regex";
 import {
   userCreationValidation,
@@ -12,10 +13,36 @@ import {
 } from "../helpers/validations/user.validations";
 
 export class UserController {
+  
   private app: UserApplication;
 
   constructor(app: UserApplication) {
     this.app = app;
+  }
+
+  async login(req: Request, res: Response) {
+    try {
+      const { email, password } = req.body;
+      if (!email || !password)
+        return res.status(400).json({ error: "Email y contraseña son requeridos" });
+ 
+      // Validación de email
+      if (!emailRegexList.createRegex.test(email))
+        return res.status(400).json({ error: "Correo electrónico no válido" });
+ 
+      // Validación de contraseña
+      if (!passwordRegexList.createRegex.test(password))
+        return res.status(400).json({
+          error:
+            "La contraseña debe tener al menos 6 caracteres y máximo 25, incluyendo al menos una letra y un número",
+        });
+ 
+      const token = await this.app.login(email, password);
+      return res.status(200).json({ token });
+     
+    } catch (error) {
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
   }
 
   async createUser(req: Request, res: Response): Promise<Response> {
@@ -114,6 +141,8 @@ export class UserController {
         { name, email, password },
         res
       );
+
+      if (validationError) return validationError;
 
       const userUpdated: User = {
         id: userId,

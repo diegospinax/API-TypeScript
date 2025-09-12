@@ -1,5 +1,7 @@
 import { User } from "../domain/User";
 import { UserPort } from "../domain/UserPort";
+import bcrypt from 'bcryptjs';
+import { AuthApplication } from "./AuthApplication";
 
 export class UserApplication {
   private port: UserPort;
@@ -48,6 +50,24 @@ export class UserApplication {
   async findByEmail(email: string): Promise<User | null> {
     return await this.port.findByEmail(email);
   }
+
+  async login(email: string, password: string): Promise<string> {
+    const existingUser = await this.findByEmail(email);
+
+    if (!existingUser)
+      throw new Error("User does not exists.");
+
+    const passwordMatch = await bcrypt.compare(password, existingUser.password);
+
+    if (!passwordMatch)
+      throw new Error("Invalid credentials provided.");
+
+    return AuthApplication.generateToken({
+      id: existingUser.id,
+      email: existingUser.email
+    });
+  }
+
 
   async existsByEmail(email: string): Promise<boolean> {
     const existingUser = await this.port.findByEmail(email);
