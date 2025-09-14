@@ -38,7 +38,7 @@ const validateEnvironments = (
 const loadEnvironments = (): Environments => {
   const result = validateEnvironments(process.env);
 
-  if (result.error) throw new Error("Error validating environments variables.");
+  if (result.error) throw new Error("Error validating environment variables.");
 
   const value = result.value;
 
